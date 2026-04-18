@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitar mudanza · MudanzasApp</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & base ─────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #1a1a18;
+    --ink-2:     #4a4a46;
+    --ink-3:     #8a8a84;
+    --surface:   #fafaf7;
+    --card:      #ffffff;
+    --border:    #e4e4de;
+    --accent:    #1a5fcc;
+    --accent-bg: #eef4ff;
+    --accent-2:  #0f3e8a;
+    --success:   #166534;
+    --success-bg:#dcfce7;
+    --danger:    #991b1b;
+    --danger-bg: #fee2e2;
+    --warn-bg:   #fffbeb;
+    --warn:      #92400e;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+    --r:         12px;
+    --r-sm:      8px;
+    --font:      'DM Sans', sans-serif;
+    --serif:     'DM Serif Display', serif;
+    --transition: .18s ease;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ───────────────────────────────────────────────── */
+  .topbar {
+    background: var(--ink);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: #fff;
+    letter-spacing: -.3px;
+  }
+  .topbar-sub {
+    font-size: 12px;
+    color: #888;
+    margin-left: auto;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+
+  /* ── Progress bar ─────────────────────────────────────────── */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 32px;
+  }
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    position: relative;
+  }
+  .step-dot::after {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+    transition: background var(--transition);
+  }
+  .step-dot:last-child::after { display: none; }
+  .step-dot.done::after { background: var(--accent); }
+  .dot-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--card);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    color: var(--ink-3);
+    position: relative; z-index: 1;
+    transition: all var(--transition);
+  }
+  .step-dot.active .dot-circle {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+  }
+  .step-dot.done .dot-circle {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+  }
+  .dot-label {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .step-dot.active .dot-label { color: var(--accent); }
+
+  /* ── Cards ────────────────────────────────────────────────── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    letter-spacing: -.4px;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+  .card-sub {
+    font-size: 14px;
+    color: var(--ink-3);
+    margin-bottom: 24px;
+  }
+
+  /* ── Form elements ────────────────────────────────────────── */
+  .field { margin-bottom: 18px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  label span { color: var(--ink-3); font-weight: 400; }
+
+  input[type=text], input[type=tel], input[type=email],
+  input[type=date], input[type=number], select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--card);
+    transition: border-color var(--transition), box-shadow var(--transition);
+    outline: none;
+    appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(26,95,204,.1);
+  }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8a84' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+  textarea { resize: vertical; min-height: 80px; }
+  input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+
+  .check-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+    font-size: 14px;
+    color: var(--ink-2);
+    user-select: none;
+  }
+  .check-group:hover { border-color: var(--accent); background: var(--accent-bg); }
+  .check-group input { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+
+  /* ── Section divider ──────────────────────────────────────── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 20px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1.5px solid transparent;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    width: 100%;
+  }
+  .btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+  .btn-primary:active { transform: scale(.98); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+  .btn-confirm {
+    background: var(--success);
+    color: #fff;
+    border-color: var(--success);
+    flex: 1;
+  }
+  .btn-confirm:hover { background: #14532d; }
+
+  .btn-cancel {
+    background: var(--card);
+    color: var(--danger);
+    border-color: var(--danger);
+    flex: 1;
+  }
+  .btn-cancel:hover { background: var(--danger-bg); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-3);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { background: var(--surface); color: var(--ink-2); }
+
+  .btn-row { display: flex; gap: 12px; margin-top: 20px; }
+
+  /* ── Presupuesto ──────────────────────────────────────────── */
+  .presupuesto-card {
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 20px;
+  }
+  .presupuesto-header {
+    background: var(--accent);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .presupuesto-header-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: -.3px;
+  }
+  .presupuesto-header-badge {
+    font-size: 12px;
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .presupuesto-body { padding: 24px; }
+
+  .linea-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .linea-item:last-child { border-bottom: none; }
+  .linea-concepto { color: var(--ink-2); }
+  .linea-monto { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .linea-monto.cero { color: var(--ink-3); }
+
+  .linea-subtotal {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0 6px;
+    font-size: 13px;
+    color: var(--ink-3);
+    border-top: 1px dashed var(--border);
+    margin-top: 4px;
+  }
+  .linea-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0 0;
+    border-top: 2px solid var(--ink);
+    margin-top: 4px;
+  }
+  .total-label { font-size: 15px; font-weight: 600; }
+  .total-monto { font-family: var(--serif); font-size: 32px; color: var(--accent); }
+
+  .presupuesto-nota {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  /* ── Resumen de datos ─────────────────────────────────────── */
+  .resumen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 480px) { .resumen-grid { grid-template-columns: 1fr; } }
+  .resumen-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 10px 14px;
+  }
+  .resumen-label { font-size: 11px; color: var(--ink-3); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+  .resumen-value { font-size: 14px; font-weight: 500; color: var(--ink); }
+
+  /* ── Toast / Estado final ─────────────────────────────────── */
+  .resultado-wrap {
+    text-align: center;
+    padding: 48px 24px;
+  }
+  .resultado-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 20px;
+  }
+  .resultado-icon.ok   { background: var(--success-bg); }
+  .resultado-icon.fail { background: var(--danger-bg); }
+  .resultado-titulo { font-family: var(--serif); font-size: 26px; margin-bottom: 8px; }
+  .resultado-sub { font-size: 15px; color: var(--ink-3); max-width: 340px; margin: 0 auto 24px; }
+  .resultado-id {
+    display: inline-block;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 99px;
+    margin-bottom: 24px;
+  }
+
+  /* ── Utilities ────────────────────────────────────────────── */
+  .hidden { display: none !important; }
+  .loader {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .info-box {
+    background: var(--warn-bg);
+    border: 1px solid #fde68a;
+    border-radius: var(--r-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--warn);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  /* Autocomplete fix para que el desplegable se vea bien sobre los inputs */
+  .pac-container {
+    font-family: var(--font);
+    border-radius: var(--r-sm);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+  }
+
+  .fade-in { animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">🚛 MudanzasApp</span>
+  <span class="topbar-sub">Formulario seguro</span>
+</div>
+
+<div class="container">
+
+  <div class="progress-wrap">
+    <div class="step-dot active" id="dot-1">
+      <div class="dot-circle">1</div>
+      <span class="dot-label">Datos</span>
+    </div>
+    <div class="step-dot" id="dot-2">
+      <div class="dot-circle">2</div>
+      <span class="dot-label">Presupuesto</span>
+    </div>
+    <div class="step-dot" id="dot-3">
+      <div class="dot-circle">3</div>
+      <span class="dot-label">Confirmación</span>
+    </div>
+  </div>
+
+  <div id="paso-1" class="fade-in">
+    <div class="card">
+      <div class="card-title">Cotizá tu mudanza</div>
+      <div class="card-sub">Completá los datos y te mostramos el precio al instante.</div>
+
+      <div class="section-label">Tus datos</div>
+      <div class="field">
+        <label>Nombre completo</label>
+        <input type="text" id="nombre" placeholder="Ej: María González" autocomplete="name">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Teléfono / WhatsApp</label>
+          <input type="tel" id="telefono" placeholder="Ej: 1123456789" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label>Email <span>(opcional)</span></label>
+          <input type="email" id="email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="section-label">Ruta y Distancia</div>
+      <div class="info-box" style="margin-bottom: 14px;">
+        Empezá a escribir la dirección y seleccionala de la lista para calcular los kilómetros exactos automáticamente.
+      </div>
+      <div class="field">
+        <label>Dirección de origen</label>
+        <input type="text" id="origen" placeholder="Empezá a escribir tu dirección de origen...">
+      </div>
+      <div class="field">
+        <label>Dirección de destino</label>
+        <input type="text" id="destino" placeholder="Empezá a escribir tu dirección de destino...">
+      </div>
+      
+      <div class="field-row">
+        <div class="field">
+          <label>Distancia en ruta</label>
+          <input type="number" id="distancia_km" placeholder="Se calcula al cotizar..." readonly style="background-color: #f0f0f0; cursor: not-allowed; color: var(--accent); font-weight: bold;">
+        </div>
+        <div class="field">
+          <label>Fecha estimada</label>
+          <input type="date" id="fecha">
+        </div>
+      </div>
+
+      <div class="section-label">Detalles del inmueble</div>
+      
+      <div class="field-row">
+        <div class="field">
+          <label>Piso origen</label>
+          <select id="pisos_origen">
+            <option value="0">Planta baja / PH</option>
+            <option value="1">1° piso</option>
+            <option value="2">2° piso</option>
+            <option value="3">3° piso</option>
+            <option value="4">4° piso</option>
+            <option value="5">5° piso o más</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Piso destino</label>
+          <select id="pisos_destino">
+            <option value="0">Planta baja / PH</option>
+            <option value="1">1° piso</option>
+            <option value="2">2° piso</option>
+            <option value="3">3° piso</option>
+            <option value="4">4° piso</option>
+            <option value="5">5° piso o más</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="check-group">
+          <input type="checkbox" id="asc_origen">
+          <span>Ascensor en origen</span>
+        </label>
+        <label class="check-group">
+          <input type="checkbox" id="asc_destino">
+          <span>Ascensor en destino</span>
+        </label>
+      </div>
+
+      <div class="section-label">Inventario principal</div>
+      <div class="info-box" style="margin-bottom: 14px;">
+        Tildá los muebles más grandes para estimar el tamaño del vehículo necesario.
+      </div>
+      <div class="field-row" style="margin-bottom: 10px;">
+        <label class="check-group">
+          <input type="checkbox" id="inv_heladera">
+          <span>Heladera</span>
+        </label>
+        <label class="check-group">
+          <input type="checkbox" id="inv_lavarropas">
+          <span>Lavarropas</span>
+        </label>
+      </div>
+      <div class="field-row" style="margin-bottom: 10px;">
+        <label class="check-group">
+          <input type="checkbox" id="inv_cama">
+          <span>Cama 2 plazas</span>
+        </label>
+        <label class="check-group">
+          <input type="checkbox" id="inv_sofa">
+          <span>Sofá (2 o 3 cuerpos)</span>
+        </label>
+      </div>
+      <div class="field-row" style="margin-bottom: 10px;">
+        <label class="check-group">
+          <input type="checkbox" id="inv_mesa">
+          <span>Mesa de comedor</span>
+        </label>
+        <label class="check-group">
+          <input type="checkbox" id="inv_ropero">
+          <span>Placard / Ropero</span>
+        </label>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Otros bultos y cajas <span>(detallá cantidades aproximadas)</span></label>
+        <textarea id="notas" placeholder="Ej: 20 cajas medianas, 2 televisores, 1 bicicleta, 4 sillas..."></textarea>
+      </div>
+
+      <div class="section-label">Peajes (Accesos a Bs. As.)</div>
+      <div class="field-row" style="margin-bottom: 10px;">
+        <label class="check-group">
+          <input type="checkbox" id="peaje_norte">
+          <span>Acceso Norte (Panamericana)</span>
+        </label>
+        <label class="check-group">
+          <input type="checkbox" id="peaje_oeste">
+          <span>Acceso Oeste</span>
+        </label>
+      </div>
+      <div class="field-row">
+        <label class="check-group">
+          <input type="checkbox" id="peaje_sur">
+          <span>Au. Bs. As. - La Plata / Sur</span>
+        </label>
+        <label class="check-group">
+          <input type="checkbox" id="peaje_riccheri">
+          <span>Autopista Riccheri</span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" id="btn-calcular" onclick="calcularPresupuesto()" style="margin-top:16px;">
+        Ver presupuesto al instante →
+      </button>
+    </div>
+  </div>
+
+  <div id="paso-2" class="hidden fade-in">
+
+    <div class="presupuesto-card">
+      <div class="presupuesto-header">
+        <div class="presupuesto-header-title">Tu presupuesto</div>
+        <div class="presupuesto-header-badge">Válido 72 hs</div>
+      </div>
+      <div class="presupuesto-body">
+        <div id="lineas-presupuesto"></div>
+        <div class="linea-subtotal">
+          <span>Subtotal (sin IVA)</span>
+          <span id="val-subtotal"></span>
+        </div>
+        <div class="linea-subtotal">
+          <span>IVA (21%)</span>
+          <span id="val-iva"></span>
+        </div>
+        <div class="linea-total">
+          <span class="total-label">Total</span>
+          <span class="total-monto" id="val-total"></span>
+        </div>
+        <p class="presupuesto-nota">
+          Precio estimado en base a los datos ingresados. El valor final puede ajustarse levemente según accesibilidad real verificada en el momento del servicio.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:18px;margin-bottom:16px;">Resumen de la mudanza</div>
+      <div class="resumen-grid" id="resumen-datos"></div>
+      <div class="info-box">
+        ¿Los datos son correctos? Confirmá para registrar tu mudanza. Nos contactaremos por WhatsApp para coordinar los detalles y asignarte el equipo.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-cancel" onclick="cancelarMudanza()">✕ Cancelar</button>
+        <button class="btn btn-confirm" id="btn-confirmar" onclick="confirmarMudanza()">✓ Confirmar mudanza</button>
+      </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn btn-ghost" onclick="volverPaso1()" style="font-size:13px;padding:8px 16px;">← Editar datos</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="paso-3" class="hidden fade-in">
+    <div class="card">
+      <div id="resultado-confirmado" class="resultado-wrap hidden">
+        <div class="resultado-icon ok">✅</div>
+        <div class="resultado-titulo">¡Mudanza registrada!</div>
+        <div id="resultado-id" class="resultado-id"></div>
+        <div class="resultado-sub">
+          Te contactaremos por WhatsApp al número indicado para coordinar los detalles y asignarte chofer y camión.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto;">
+          <a href="https://wa.me/" id="link-wa" class="btn btn-primary" style="text-decoration:none;">
+            💬 Abrir WhatsApp
+          </a>
+          <button class="btn btn-ghost" onclick="reiniciar()">Hacer otra cotización</button>
+        </div>
+      </div>
+      <div id="resultado-cancelado" class="resultado-wrap hidden">
+        <div class="resultado-icon fail">✕</div>
+        <div class="resultado-titulo">Presupuesto cancelado</div>
+        <div class="resultado-sub">
+          No registramos ninguna mudanza. Podés volver a cotizar cuando quieras, sin compromiso.
+        </div>
+        <button class="btn btn-primary" onclick="reiniciar()" style="max-width:240px;margin:0 auto;">
+          Volver a cotizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY_AQUI&libraries=places&callback=initAutocomplete" async defer></script>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────
+const DEMO_MODE = true;
+
+// ── Inicializar Google Places Autocomplete ─────────────────────
+function initAutocomplete() {
+  if (typeof google === 'undefined' || !google.maps || !google.maps.places) return;
+  
+  // Restringimos los resultados a Argentina para mayor precisión
+  const options = {
+    componentRestrictions: { country: "ar" },
+    fields: ["address_components", "geometry", "name", "formatted_address"],
+    types: ["address"] 
+  };
+
+  new google.maps.places.Autocomplete(document.getElementById("origen"), options);
+  new google.maps.places.Autocomplete(document.getElementById("destino"), options);
+}
+
+// ── Lógica matemática de precios ───────────────────────────────
+function calcularLocal(d) {
+  const BASE = 15000;
+  const KM = 350;
+  const PRECIO_MUEBLE = 8000; 
+  const PRECIO_PEAJE = 3500;  
+
+  const pisoTarifa = (p, asc) => p * (asc ? 500 : 2500);
+  
+  const c_base = BASE;
+  const c_km   = Math.round(d.distancia_km * KM);
+  const c_orig = pisoTarifa(d.pisos_origen, d.asc_origen);
+  const c_dest = pisoTarifa(d.pisos_destino, d.asc_destino);
+
+  let cant_muebles = 0;
+  if(d.inventario) {
+    Object.values(d.inventario).forEach(tildado => { if(tildado) cant_muebles++; });
+  }
+  const c_muebles = cant_muebles * PRECIO_MUEBLE;
+
+  let cant_peajes = 0;
+  if(d.peajes) {
+    Object.values(d.peajes).forEach(tildado => { if(tildado) cant_peajes++; });
+  }
+  const c_peajes = cant_peajes * PRECIO_PEAJE;
+
+  // Calculamos el subtotal (Ya no sumamos los metros cuadrados)
+  const sub = c_base + c_km + c_orig + c_dest + c_muebles + c_peajes;
+
+  let items_ticket = [
+    { concepto: "Tarifa base / Reserva",                monto: c_base },
+    { concepto: `Distancia (${d.distancia_km} km)`,     monto: c_km   },
+    { concepto: `Pisos origen (${d.pisos_origen} p.)`,  monto: c_orig },
+    { concepto: `Pisos destino (${d.pisos_destino} p.)`,monto: c_dest },
+  ];
+
+  if (cant_muebles > 0) items_ticket.push({ concepto: `Muebles grandes (${cant_muebles} un.)`, monto: c_muebles });
+  if (cant_peajes > 0) items_ticket.push({ concepto: `Peajes Bs. As. (${cant_peajes})`, monto: c_peajes });
+
+  return {
+    items: items_ticket,
+    subtotal: sub,
+    iva:   Math.round(sub * 0.21),
+    total: Math.round(sub * 1.21),
+  };
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+const fmt = n => "$ " + Math.round(n).toLocaleString("es-AR");
+let datosFormulario = {};
+let datosPresupuesto = {};
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById(`paso-${i}`).classList.toggle("hidden", i !== n);
+    const dot = document.getElementById(`dot-${i}`);
+    dot.classList.toggle("active", i === n);
+    dot.classList.toggle("done", i < n);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function getForm() {
+  return {
+    nombre:      document.getElementById("nombre").value.trim(),
+    telefono:    document.getElementById("telefono").value.trim(),
+    email:       document.getElementById("email").value.trim(),
+    origen:      document.getElementById("origen").value.trim(),
+    destino:     document.getElementById("destino").value.trim(),
+    // Convertimos a float, si falla ponemos 0
+    distancia_km:parseFloat(document.getElementById("distancia_km").value) || 0,
+    fecha:       document.getElementById("fecha").value,
+    
+    pisos_origen:parseInt(document.getElementById("pisos_origen").value),
+    pisos_destino:parseInt(document.getElementById("pisos_destino").value),
+    asc_origen:  document.getElementById("asc_origen").checked,
+    asc_destino: document.getElementById("asc_destino").checked,
+    notas:       document.getElementById("notas").value.trim(),
+    
+    inventario: {
+      Heladera:   document.getElementById("inv_heladera").checked,
+      Lavarropas: document.getElementById("inv_lavarropas").checked,
+      Cama:       document.getElementById("inv_cama").checked,
+      Sofa:       document.getElementById("inv_sofa").checked,
+      Mesa:       document.getElementById("inv_mesa").checked,
+      Ropero:     document.getElementById("inv_ropero").checked
+    },
+
+    peajes: {
+      Norte:    document.getElementById("peaje_norte").checked,
+      Oeste:    document.getElementById("peaje_oeste").checked,
+      Sur:      document.getElementById("peaje_sur").checked,
+      Riccheri: document.getElementById("peaje_riccheri").checked
+    }
+  };
+}
+
+// ── Paso 1 → 2 con Google Maps ────────────────────────────────
+async function calcularPresupuesto() {
+  const origenVal = document.getElementById("origen").value.trim();
+  const destinoVal = document.getElementById("destino").value.trim();
+
+  // Validaciones iniciales
+  if (!document.getElementById("nombre").value.trim()) { alert("Ingresá tu nombre."); return; }
+  if (!document.getElementById("telefono").value.trim()) { alert("Ingresá tu teléfono / WhatsApp."); return; }
+  if (!origenVal) { alert("Ingresá la dirección de origen."); return; }
+  if (!destinoVal) { alert("Ingresá la dirección de destino."); return; }
+  if (!document.getElementById("fecha").value) { alert("Elegí una fecha estimada."); return; }
+
+  const btn = document.getElementById("btn-calcular");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loader"></span> Calculando ruta y precio...`;
+
+  try {
+    // Si no cargó la API de Google (o no tiene API KEY), usamos una distancia de prueba
+    if (typeof google === 'undefined' || !google.maps) {
+      console.warn("API de Google Maps no cargada. Usando distancia de prueba (15km).");
+      document.getElementById("distancia_km").value = 15;
+    } else {
+      const service = new google.maps.DistanceMatrixService();
+      const response = await new Promise((resolve, reject) => {
+        service.getDistanceMatrix({
+          origins: [origenVal],
+          destinations: [destinoVal],
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC,
+        }, (res, status) => {
+          if (status === 'OK') resolve(res);
+          else reject(status);
+        });
+      });
+
+      const resultados = response.rows[0].elements[0];
+
+      if (resultados.status === "NOT_FOUND" || resultados.status === "ZERO_RESULTS") {
+        alert("No pudimos encontrar la ruta. Por favor, asegúrate de seleccionar una dirección de la lista sugerida por Google.");
+        btn.disabled = false;
+        btn.innerHTML = "Ver presupuesto al instante →";
+        return;
+      }
+
+      const distanciaMetros = resultados.distance.value;
+      const distanciaCalculadaKm = Math.ceil(distanciaMetros / 1000);
+      document.getElementById("distancia_km").value = distanciaCalculadaKm;
+    }
+
+    // Armamos los datos del formulario (ahora distancia_km tendrá el valor real o el de prueba)
+    const d = getForm();
+    
+    // Por seguridad, si de alguna forma llega vacía, la forzamos
+    if(!d.distancia_km) d.distancia_km = 15; 
+    
+    datosFormulario = d;
+
+    // Calculamos los precios
+    let result = calcularLocal(d);
+
+    if (DEMO_MODE) await new Promise(r => setTimeout(r, 600)); // simula latencia de red
+
+    datosPresupuesto = result;
+    renderPresupuesto(result, d);
+    setStep(2);
+
+  } catch (error) {
+    console.error("Error al calcular distancia:", error);
+    alert("Hubo un error al conectar con los mapas. Verificá tu conexión o intentá nuevamente.");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = "Ver presupuesto al instante →";
+  }
+}
+
+function renderPresupuesto(p, d) {
+  document.getElementById("lineas-presupuesto").innerHTML = p.items.map(it => `
+    <div class="linea-item">
+      <span class="linea-concepto">${it.concepto}</span>
+      <span class="linea-monto ${it.monto === 0 ? 'cero' : ''}">${it.monto === 0 ? '—' : fmt(it.monto)}</span>
+    </div>`).join("");
+
+  document.getElementById("val-subtotal").textContent = fmt(p.subtotal);
+  document.getElementById("val-iva").textContent = fmt(p.iva);
+  document.getElementById("val-total").textContent = fmt(p.total);
+
+  const fechaFmt = d.fecha ? new Date(d.fecha + "T00:00").toLocaleDateString("es-AR", { day:"2-digit", month:"long", year:"numeric" }) : "—";
+  
+  const mueblesTildados = Object.keys(d.inventario).filter(k => d.inventario[k]).join(", ");
+  const textoMuebles = mueblesTildados ? mueblesTildados : "Ninguno";
+  
+  const peajesTildados = Object.keys(d.peajes).filter(k => d.peajes[k]).join(", ");
+  const textoPeajes = peajesTildados ? peajesTildados : "Ninguno";
+
+  document.getElementById("resumen-datos").innerHTML = `
+    <div class="resumen-item"><div class="resumen-label">Cliente</div><div class="resumen-value">${d.nombre}</div></div>
+    <div class="resumen-item"><div class="resumen-label">WhatsApp</div><div class="resumen-value">${d.telefono}</div></div>
+    <div class="resumen-item" style="grid-column: 1 / -1;"><div class="resumen-label">Origen</div><div class="resumen-value">${d.origen}</div></div>
+    <div class="resumen-item" style="grid-column: 1 / -1;"><div class="resumen-label">Destino</div><div class="resumen-value">${d.destino}</div></div>
+    <div class="resumen-item"><div class="resumen-label">Fecha estimada</div><div class="resumen-value">${fechaFmt}</div></div>
+    <div class="resumen-item"><div class="resumen-label">Distancia</div><div class="resumen-value">${d.distancia_km} km</div></div>
+    <div class="resumen-item" style="grid-column: 1 / -1;"><div class="resumen-label">Muebles grandes</div><div class="resumen-value">${textoMuebles}</div></div>
+    <div class="resumen-item" style="grid-column: 1 / -1;"><div class="resumen-label">Peajes</div><div class="resumen-value">${textoPeajes}</div></div>
+    <div class="resumen-item" style="grid-column: 1 / -1;"><div class="resumen-label">Otros bultos</div><div class="resumen-value">${d.notas || "—"}</div></div>
+  `;
+}
+
+// ── Confirmar ─────────────────────────────────────────────────
+async function confirmarMudanza() {
+  const btn = document.getElementById("btn-confirmar");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loader"></span> Registrando...`;
+
+  let mudanza_id = Math.floor(Math.random() * 9000) + 1000;
+
+  if (DEMO_MODE) {
+    await new Promise(r => setTimeout(r, 800));
+  }
+
+  setStep(3);
+  document.getElementById("resultado-confirmado").classList.remove("hidden");
+  document.getElementById("resultado-cancelado").classList.add("hidden");
+  document.getElementById("resultado-id").textContent = `Mudanza #${mudanza_id}`;
+  document.getElementById("link-wa").href = `https://wa.me/549${datosFormulario.telefono.replace(/\D/g,"")}`;
+}
+
+// ── Cancelar ──────────────────────────────────────────────────
+async function cancelarMudanza() {
+  if (!confirm("¿Cancelar el presupuesto? No se registrará ninguna mudanza.")) return;
+  setStep(3);
+  document.getElementById("resultado-cancelado").classList.remove("hidden");
+  document.getElementById("resultado-confirmado").classList.add("hidden");
+}
+
+function volverPaso1() { setStep(1); }
+
+function reiniciar() {
+  document.getElementById("resultado-confirmado").classList.add("hidden");
+  document.getElementById("resultado-cancelado").classList.add("hidden");
+  
+  const btn = document.getElementById("btn-confirmar");
+  btn.disabled = false;
+  btn.innerHTML = "✓ Confirmar mudanza";
+  
+  setStep(1);
+}
+
+// Pre-fill
+(function() {
+  const params = new URLSearchParams(location.search);
+  const tel = params.get("tel");
+  if (tel) document.getElementById("telefono").value = tel;
+  const manana = new Date(); manana.setDate(manana.getDate() + 1);
+  document.getElementById("fecha").min = manana.toISOString().split("T")[0];
+})();
+</script>
+</body>
+</html>
